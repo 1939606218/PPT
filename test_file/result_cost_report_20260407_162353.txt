@@ -1,0 +1,34 @@
+费用分析报告
+生成时间：2026-04-07 16:26:47.289689
+
+测试文件：
+  PDF: Test presentation 1.pdf  (6页)
+  音频: audio_part1_16m40s-23m48s.mp3  (427.5秒 / 7.13分钟)
+
+PPT类型识别：方法工具改进型 (methodology)
+总分：91.0 / 100   等级：A
+
+Token明细：
+  [VL-slide] model=qwen-vl-plus  输入=1486  输出=258  合计=1744
+  [VL-slide] model=qwen-vl-plus  输入=1486  输出=68  合计=1554
+  [VL-slide] model=qwen-vl-plus  输入=1486  输出=195  合计=1681
+  [VL-slide] model=qwen-vl-plus  输入=1486  输出=367  合计=1853
+  [VL-slide] model=qwen-vl-plus  输入=1486  输出=623  合计=2109
+  [VL-slide] model=qwen-vl-plus  输入=1486  输出=735  合计=2221
+  [VL-汇总分析] model=qwen-plus  输入=1363  输出=152  合计=1515
+  [Scoring-分类] model=qwen-plus  输入=3530  输出=140  合计=3670
+  [Scoring-elevation_fluency] model=qwen-plus  输入=1693  输出=471  合计=2164
+  [Scoring-narrative_setup] model=qwen-plus  输入=3967  输出=953  合计=4920
+  [Scoring-solution_results] model=qwen-plus  输入=4028  输出=934  合计=4962
+  [Scoring-汇总] model=qwen-plus  输入=4397  输出=1679  合计=6076
+
+费用明细（汇率1USD=7.25CNY）：
+  ① VL逐页分析 (qwen-vl-plus, 11,162tokens):       ¥0.0089
+  ② VL后处理LLM (qwen-plus, 1次合并, 1,515tokens):  ¥0.0061
+  ③ AssemblyAI转录 (428s, universal-3-pro):         $0.0249 ≈ ¥0.1808
+  ④ 分类LLM (qwen-plus, 3,670tokens):       ¥0.0147
+  ⑤ 3维度评分LLM (qwen-plus, 12,046tokens):  ¥0.0482
+  ⑥ 汇总LLM (qwen-plus, 7,591tokens):       ¥0.0304
+
+  总计：¥0.2890
+  总耗时：174.1秒

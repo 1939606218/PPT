@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: ppt_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ppt_scoring
+      POSTGRES_USER: ppt_user
+      POSTGRES_PASSWORD: ppt_pass_2026
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"   # 避免与已有 supabase-db (5432) 冲突
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ppt_user -d ppt_scoring"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres_data:

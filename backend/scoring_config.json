@@ -1,0 +1,67 @@
+{
+  "with_audio": {
+    "narrative_setup": {
+      "label": "维度A · 结构与逻辑",
+      "max_score": 45
+    },
+    "solution_results": {
+      "label": "维度B · 内容与价值",
+      "max_score": 45
+    },
+    "elevation_fluency": {
+      "label": "维度C · 语言与呈现",
+      "max_score": 10
+    }
+  },
+  "no_audio": {
+    "narrative_setup": {
+      "label": "维度A · 结构与逻辑",
+      "max_score": 50
+    },
+    "solution_results": {
+      "label": "维度B · 内容与价值",
+      "max_score": 50
+    }
+  },
+  "sub_dimensions": {
+    "narrative_setup": {
+      "labels": [
+        "背景与痛点铺垫",
+        "方案推演的连贯性",
+        "结果的闭环交代",
+        "通用价值提炼"
+      ],
+      "ratio": [
+        12,
+        11,
+        11,
+        11
+      ]
+    },
+    "solution_results": {
+      "labels": [
+        "客观数据与证据支撑",
+        "业务相关性与深度",
+        "跨界理解友好度",
+        "工程决策与系统思维"
+      ],
+      "ratio": [
+        12,
+        11,
+        11,
+        11
+      ]
+    }
+  },
+  "relevance": {
+    "low_cap_pct": 0.3,
+    "mid_cap_pct": 0.75,
+    "low_threshold": 40,
+    "high_threshold": 70
+  },
+  "prompt_files": {
+    "narrative_setup": "dimA_narrative.md",
+    "solution_results": "dimB_solution.md",
+    "elevation_fluency": "dimC_elevation.md"
+  }
+}

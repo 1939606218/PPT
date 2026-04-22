@@ -1,0 +1,79 @@
+音频转录结果
+生成时间：2026-04-07 16:25:03.948294
+音频路径：/home/wangjun/PPT_new/test_file/audio_part1_16m40s-23m48s.mp3
+AssemblyAI模型：universal-3-pro
+时长：427.5秒 (7.13分钟)
+总字数：4567
+语速：520 字/分钟
+停顿次数：46
+口头禅次数：0
+============================================================
+
+【完整转录文本】
+
+about using AI tools for new technology scouting. Dear colleagues, good afternoon. Glad to have the opportunity to share with you the topic, how AI is reshaping the technology scouting work. Before entering into AI era, The ways we carried out technology scouting were quite traditional. I wonder if you still remember. We relied on attending industrial exhibitions and seminars and reading thick industry reports and professional literature. We also spent a lot of time maintaining the industrial networks and monitoring the competitors' dynamics. We rely on consulting with universities and research institutions and also collecting the customers' feedback to capture the technology directions. Although this method could help us a lot to get generating information, there are a lot of pain points behind them. The low efficiency, high cost, poor timeliness, and information fragmentation. However, with the generation of AI tools, the technology scouting has become a brand new transformation. Now we have built a standard technology scouting process with the help of AI tools, which has 3 key steps. The first step is the definition of the starting area. We summarize existing technologies and define the retrieval category, and then we can get a list covering the technologies already used by ourselves and our competitors. The second step is divergent ideation. This step has completely broken the limitations of traditional thinking. We rely on AI tools to achieve comprehensive retrieval and generate information across fields. And we also combined a lot of innovation thinking models such as trees, ocean, scan, and so on. And then we will get a list including various fields, partnering the materials, structures, electronics, and emerging cutting-edge technologies. The third step is systematic evaluation. In the past, we rely on experience for technology evaluation, which was quite subjective and limited in dimensions. Now, with the help of AI tools, we can We can conduct quantitative evaluation in 5 core dimensions: technology maturity, feasibility, cost, industry trends, and potential launch time. We can also generate a technology lifecycle to present the development stage and the application prospects of different technologies. Let's take ventilation noise reduction as an example. This is also a pinpoint in our work. Firstly, we sort out a list including the 7 existing technologies, including silent motor, panel optimization, passive noise reduction with sound absorbing foam. But we all believe that is not enough. So we ask AI to generate the technologies already used on ventilation markets and give us more ideas. The AI gives us quick feedback but only explores the solutions to 12. Is it enough? Obviously no. In this example, We use the exhaustive search method and ask AI to explore 100 cutting-edge technologies and exclude those that are not— are completely not mass-producible. But with the help of the— rely on this method, the number of the potential solutions increased to 59. That was quite a substantial figure. Then we come to the third step. We ask AI to give out 1 to 5 points for the technology maturity, feasibility, costs, industrial potential, and we also ask AI to evaluate the potential production launch time by less than 1 year, 1 to 2 years, 2 to 5 years, and more than 5 years. This will help us a lot to generate the noise reduction technical hype cycle. The technical hype cycle is imagined by JP Van. It is divided into 5 parts in total: the innovation trigger, the peak of inflated expectations, trough of disillusionment, slope of enlightenment and plateau of productivity. That can effectively help us to be making the innovation selections. You can see in this example, we go to the noise reduction technical hype cycle. We have a internal discussion and finally choose ANC and acoustic reflector. To make it live. We also generate various technical hype cycles for the top 5 priorities of the ventilation. That really helped us a lot to make quick decisions. Which is even more noteworthy is the efficiency improvement brought by the AI tools. In terms of the technical solution qualities, Traditional method can only bring about 10 solutions, while with the help of AI, the potential solutions include— increase 50, which is 5 times than the original. In terms of the retrieval time, a SCORM task that would cost 40 days now can be completed in only 4 days, reducing the time cost by 90%. If we make rational use of AI tools, we can even achieve zero retrieval cost. That is all my sharing. Thank you.
+
+【分段列表】
+[0.1s - 5.7s] about using AI tools for new technology scouting.
+[9.1s - 15.1s] Dear colleagues, good afternoon. Glad to have the opportunity to share with you the topic, how
+[17.3s - 23.0s] AI is reshaping the technology scouting work. Before entering into AI era,
+[27.0s - 30.6s] The ways we carried out technology scouting were quite traditional.
+[32.0s - 33.6s] I wonder if you still remember.
+[34.7s - 38.3s] We relied on attending industrial exhibitions and seminars
+[39.6s - 44.4s] and reading thick industry reports and professional literature.
+[46.2s - 54.1s] We also spent a lot of time maintaining the industrial networks and monitoring the competitors' dynamics.
+[55.2s - 66.2s] We rely on consulting with universities and research institutions and also collecting the customers' feedback to capture the technology directions.
+[67.5s - 74.4s] Although this method could help us a lot to get generating information, there are a lot of pain points behind
+[74.4s - 81.4s] them. The low efficiency, high cost, poor timeliness, and information fragmentation.
+[83.2s - 85.9s] However, with the generation of AI tools,
+[87.2s - 91.4s] the technology scouting has become a brand new transformation.
+[92.5s - 101.1s] Now we have built a standard technology scouting process with the help of AI tools, which has 3 key steps.
+[103.3s - 106.1s] The first step is the definition of the starting area.
+[107.2s - 117.1s] We summarize existing technologies and define the retrieval category, and then we can get a list covering the technologies already
+[117.1s - 120.0s] used by ourselves and our competitors. The
+[121.1s - 123.3s] second step is divergent ideation.
+[124.7s - 134.8s] This step has completely broken the limitations of traditional thinking. We rely on AI tools to achieve comprehensive retrieval and
+[134.8s - 146.5s] generate information across fields. And we also combined a lot of innovation thinking models such as trees, ocean, scan, and
+[146.5s - 159.5s] so on. And then we will get a list including various fields, partnering the materials, structures, electronics, and emerging cutting-edge
+[159.5s - 160.2s] technologies.
+[162.0s - 164.0s] The third step is systematic evaluation.
+[166.0s - 171.9s] In the past, we rely on experience for technology evaluation, which was quite
+[172.9s - 175.5s] subjective and limited in dimensions.
+[176.6s - 178.2s] Now, with the help of AI tools,
+[179.5s - 186.3s] we can We can conduct quantitative evaluation in 5 core dimensions:
+[187.5s - 194.3s] technology maturity, feasibility, cost, industry trends, and potential launch time.
+[195.6s - 209.4s] We can also generate a technology lifecycle to present the development stage and the application prospects of different technologies.
+[211.7s - 215.7s] Let's take ventilation noise reduction as an example.
+[217.0s - 223.7s] This is also a pinpoint in our work. Firstly, we sort out a list including the
+[224.7s - 225.3s] 7
+[226.5s - 229.4s] existing technologies, including silent motor,
+[230.6s - 235.0s] panel optimization, passive noise reduction with sound absorbing foam.
+[236.1s - 238.2s] But we all believe that is not enough.
+[239.8s - 246.5s] So we ask AI to generate the technologies already used on ventilation markets and give us more ideas.
+[247.7s - 251.4s] The AI gives us quick feedback but only explores the
+[252.5s - 253.7s] solutions to 12.
+[255.1s - 255.8s] Is it enough?
+[257.0s - 270.7s] Obviously no. In this example, We use the exhaustive search method and ask AI to explore 100 cutting-edge technologies and
+[270.7s - 275.1s] exclude those that are not— are completely not mass-producible.
+[277.3s - 285.8s] But with the help of the— rely on this method, the number of the potential solutions increased to 59. That
+[285.8s - 287.5s] was quite a substantial figure.
+[288.9s - 293.7s] Then we come to the third step. We ask AI to give out 1 to 5 points
+[295.0s - 306.5s] for the technology maturity, feasibility, costs, industrial potential, and we also ask AI to evaluate the potential production launch time
+[306.5s - 313.2s] by less than 1 year, 1 to 2 years, 2 to 5 years, and more than 5 years. This will
+[313.2s - 317.4s] help us a lot to generate the noise reduction technical hype cycle.
+[322.2s - 331.9s] The technical hype cycle is imagined by JP Van. It is divided into 5 parts in total: the innovation trigger,
+[332.3s - 346.7s] the peak of inflated expectations, trough of disillusionment, slope of enlightenment and plateau of productivity. That can effectively help us
+[347.2s - 350.6s] to be making the innovation selections.
+[351.7s - 353.2s] You can see in this example,
+[354.6s - 362.8s] we go to the noise reduction technical hype cycle. We have a internal discussion and finally choose ANC and acoustic
+[362.8s - 365.3s] reflector. To make it live.
+[366.4s - 376.1s] We also generate various technical hype cycles for the top 5 priorities of the ventilation. That really helped us a
+[376.1s - 377.6s] lot to make quick decisions.
+[380.2s - 390.1s] Which is even more noteworthy is the efficiency improvement brought by the AI tools. In terms of the technical solution
+[390.1s - 390.7s] qualities,
+[391.8s - 402.7s] Traditional method can only bring about 10 solutions, while with the help of AI, the potential solutions include— increase 50,
+[403.3s - 405.3s] which is 5 times than the original.
+[406.3s - 413.3s] In terms of the retrieval time, a SCORM task that would cost 40 days now can be completed in only
+[413.3s - 416.5s] 4 days, reducing the time cost by 90%.
+[417.8s - 423.6s] If we make rational use of AI tools, we can even achieve zero retrieval cost.
+[425.4s - 427.5s] That is all my sharing. Thank you.
