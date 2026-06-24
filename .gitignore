@@ -1,0 +1,60 @@
+# ── Python ──
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+env/
+*.egg
+
+# ── 敏感信息 ──
+.env
+*.pem
+*.key
+
+# ── 日志 ──
+*.log
+logs/
+*.log.*
+
+# ── IDE ──
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ── Node (前端) ──
+node_modules/
+frontend-react/build/
+.md2pdf/
+
+# ── 大型文件 ──
+ffmpeg.zip
+ffmpeg_extracted/
+*.mp4
+*.avi
+*.mov
+
+# ── 临时文件 / 缓存 ──
+*.tmp
+*.temp
+.cache/
+.DS_Store
+Thumbs.db
+
+# ── Celery / Flower ──
+celerybeat-schedule
+celerybeat.pid
+
+# ── 输出文件（报告等） ──
+outputs/
+generated-images/
+reports/
+
+# ── 数据库 ──
+*.db
+*.sqlite3
+.pids/

@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PPT 评分系统 — 企业级高并发架构方案</title>
+<style>
+    :root {
+        --bg: #0f172a;
+        --card: #1e293b;
+        --border: #334155;
+        --text: #e2e8f0;
+        --text-secondary: #94a3b8;
+        --accent: #38bdf8;
+        --accent2: #818cf8;
+        --danger: #f87171;
+        --success: #4ade80;
+        --warning: #fbbf24;
+        --code-bg: #0c1222;
+        --sidebar-bg: #0b1120;
+        --sidebar-width: 280px;
+        --tag-rate: #f59e0b;
+        --tag-arch: #8b5cf6;
+        --tag-code: #06b6d4;
+        --tag-interview: #10b981;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.75;
+        display: flex;
+    }
+
+    /* ── Sidebar ───────────────────────────────────────────── */
+    nav#sidebar {
+        position: fixed;
+        top: 0; left: 0;
+        width: var(--sidebar-width);
+        height: 100vh;
+        background: var(--sidebar-bg);
+        border-right: 1px solid var(--border);
+        overflow-y: auto;
+        z-index: 100;
+        padding: 24px 0;
+    }
+    nav#sidebar h2 {
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--text-secondary);
+        padding: 0 24px 16px;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 12px;
+    }
+    nav#sidebar .toc-item {
+        display: block;
+        padding: 7px 24px;
+        font-size: 13px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: all .15s;
+        border-left: 2px solid transparent;
+    }
+    nav#sidebar .toc-item:hover,
+    nav#sidebar .toc-item.active {
+        color: var(--accent);
+        border-left-color: var(--accent);
+        background: rgba(56, 189, 248, .06);
+    }
+    nav#sidebar .toc-item.toc-h2 { padding-left: 36px; font-size: 12px; }
+    nav#sidebar .toc-item.toc-h3 { padding-left: 48px; font-size: 11px; color: #64748b; }
+
+    /* ── Main Content ──────────────────────────────────────── */
+    main {
+        margin-left: var(--sidebar-width);
+        padding: 48px 64px;
+        max-width: 1000px;
+        width: 100%;
+    }
+    main h1 {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        background: linear-gradient(135deg, var(--accent), var(--accent2));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    main .subtitle {
+        color: var(--text-secondary);
+        font-size: 15px;
+        margin-bottom: 40px;
+        padding-bottom: 24px;
+        border-bottom: 1px solid var(--border);
+    }
+    main h2 {
+        font-size: 22px;
+        margin: 48px 0 16px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--border);
+        color: #f1f5f9;
+    }
+    main h3 {
+        font-size: 18px;
+        margin: 32px 0 12px;
+        color: #e2e8f0;
+    }
+    main h4 {
+        font-size: 15px;
+        margin: 24px 0 8px;
+        color: var(--text-secondary);
+        font-weight: 600;
+    }
+    main p { margin: 12px 0; }
+    main a { color: var(--accent); }
+
+    /* ── Code Blocks ───────────────────────────────────────── */
+    pre {
+        background: var(--code-bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 20px 24px;
+        overflow-x: auto;
+        font-size: 13px;
+        line-height: 1.6;
+        margin: 16px 0;
+    }
+    pre code {
+        font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'SF Mono', monospace;
+        color: #cbd5e1;
+    }
+    code:not(pre code) {
+        background: rgba(56,189,248,.12);
+        color: var(--accent);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.9em;
+    }
+    /* Architecture diagram styling */
+    pre.diagram {
+        background: var(--code-bg);
+        border-color: var(--accent2);
+        border-left: 3px solid var(--accent2);
+    }
+    pre.diagram code { color: #a5b4fc; }
+
+    /* ── Tables ────────────────────────────────────────────── */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 16px 0;
+        font-size: 14px;
+    }
+    th, td {
+        padding: 10px 14px;
+        border: 1px solid var(--border);
+        text-align: left;
+    }
+    th {
+        background: rgba(56, 189, 248, .08);
+        color: var(--accent);
+        font-weight: 600;
+        font-size: 13px;
+    }
+    tr:hover td { background: rgba(56, 189, 248, .03); }
+
+    /* ── Callout Boxes ─────────────────────────────────────── */
+    .callout {
+        border-radius: 8px;
+        padding: 16px 20px;
+        margin: 16px 0;
+        border-left: 4px solid;
+        font-size: 14px;
+    }
+    .callout-info  { background: rgba(56,189,248,.08);  border-color: var(--accent); }
+    .callout-warn  { background: rgba(251,191,36,.08);  border-color: var(--warning); }
+    .callout-danger{ background: rgba(248,113,113,.08); border-color: var(--danger); }
+    .callout-success{background: rgba(74,222,128,.08); border-color: var(--success); }
+    .callout-interview {
+        background: rgba(16,185,129,.08);
+        border-color: var(--tag-interview);
+        position: relative;
+    }
+    .callout-title {
+        font-weight: 700;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 6px;
+    }
+    .callout-info .callout-title  { color: var(--accent); }
+    .callout-warn .callout-title  { color: var(--warning); }
+    .callout-danger .callout-title{ color: var(--danger); }
+    .callout-success .callout-title{ color: var(--success); }
+    .callout-interview .callout-title { color: var(--tag-interview); }
+
+    /* ── Tags ──────────────────────────────────────────────── */
+    .tag {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 3px;
+        font-size: 11px;
+        font-weight: 600;
+        margin-right: 4px;
+    }
+    .tag-bottleneck { background: rgba(248,113,113,.18); color: var(--danger); }
+    .tag-arch       { background: rgba(139,92,246,.18); color: #a78bfa; }
+    .tag-rate       { background: rgba(251,191,36,.18); color: var(--warning); }
+    .tag-ok         { background: rgba(74,222,128,.18); color: var(--success); }
+
+    /* ── Timeline ──────────────────────────────────────────── */
+    pre.timeline {
+        background: var(--code-bg);
+        border-color: var(--tag-rate);
+        border-left: 3px solid var(--tag-rate);
+    }
+    pre.timeline code { color: #fbbf24; }
+
+    /* ── Section numbering ─────────────────────────────────── */
+    .section-num {
+        display: inline-block;
+        background: var(--accent);
+        color: var(--bg);
+        border-radius: 6px;
+        width: 28px; height: 28px;
+        line-height: 28px;
+        text-align: center;
+        font-size: 13px;
+        font-weight: 700;
+        margin-right: 10px;
+        vertical-align: middle;
+    }
+
+    /* ── Responsive ────────────────────────────────────────── */
+    @media (max-width: 900px) {
+        nav#sidebar { display: none; }
+        main { margin-left: 0; padding: 24px; }
+    }
+
+    /* ── Print ─────────────────────────────────────────────── */
+    @media print {
+        nav#sidebar { display: none; }
+        main { margin-left: 0; }
+        body { background: #fff; color: #000; }
+    }
+</style>
+</head>
+<body>
+
+<!-- ═════════════════════ SIDEBAR ═══════════════════════════ -->
+<nav id="sidebar">
+    <h2>📋 目录导航</h2>
+    <a class="toc-item" href="#overview">概述 & API 约束</a>
+    <a class="toc-item" href="#why-split">为什么拆成三段</a>
+    <a class="toc-item" href="#pipeline">评分流水线全景</a>
+    <a class="toc-item" href="#architecture">整体架构图</a>
+    <a class="toc-item toc-h2" href="#pillar1">板斧一：Redis 分布式令牌桶</a>
+    <a class="toc-item toc-h2" href="#pillar2">板斧二：任务队列</a>
+    <a class="toc-item toc-h2" href="#pillar3">板斧三：幂等 + 断点续跑</a>
+    <a class="toc-item toc-h2" href="#pillar4">板斧四：熔断 + 降级 + 多Key</a>
+    <a class="toc-item" href="#layers">各层详细设计</a>
+    <a class="toc-item toc-h2" href="#layer-nginx">Nginx 接入层</a>
+    <a class="toc-item toc-h2" href="#layer-api">FastAPI 接入层</a>
+    <a class="toc-item toc-h2" href="#layer-worker">Celery Worker 层</a>
+    <a class="toc-item toc-h2" href="#layer-priority">优先级队列</a>
+    <a class="toc-item toc-h2" href="#layer-db">数据库读写分离</a>
+    <a class="toc-item" href="#deployment">部署配置</a>
+    <a class="toc-item" href="#timeout">超时分层控制</a>
+    <a class="toc-item" href="#backpressure">背压 & 排队调度</a>
+    <a class="toc-item" href="#monitoring">监控告警体系</a>
+    <a class="toc-item" href="#scaling">扩容路径</a>
+    <a class="toc-item" href="#why-not-kafka">为什么不选 Kafka</a>
+    <a class="toc-item" href="#summary">面试总结</a>
+</nav>
+
+<!-- ═════════════════════ MAIN CONTENT ═══════════════════════ -->
+<main>
+
+<!-- ── Title ───────────────────────────────────────────────── -->
+<h1>PPT 评分系统 — 企业级高并发架构方案</h1>
+<p class="subtitle">
+    适用场景：付费 API（qwen3-max 600 RPM / qwen-vl-plus-0710 60 RPM / AssemblyAI 200并发），日活用户 1000+<br>
+    核心四板斧：<strong>分布式令牌桶限流 + 任务队列（三段拆分）+ 幂等性 + 熔断降级</strong>
+</p>
+
+<!-- ═══════════════════ SECTION 1 ══════════════════════════ -->
+<section id="overview">
+<h2><span class="section-num">1</span>三个 API 的并发上限</h2>
+
+<table>
+    <tr><th>API</th><th>用途</th><th>并发上限</th><th>对应阶段</th></tr>
+    <tr>
+        <td>qwen-vl-plus-0710</td>
+        <td>逐页图像分析</td>
+        <td><span class="tag tag-bottleneck">60 RPM = 1 QPS ← 全系统瓶颈</span></td>
+        <td>③-A</td>
+    </tr>
+    <tr>
+        <td>qwen3-max</td>
+        <td>分类 + 评分 + 汇总</td>
+        <td><span class="tag tag-ok">600 RPM = 10 QPS</span></td>
+        <td>⑤⑥⑦</td>
+    </tr>
+    <tr>
+        <td>AssemblyAI 异步转录</td>
+        <td>音频转文字</td>
+        <td><span class="tag tag-ok">200 并发任务</span>（付费），非瓶颈</td>
+        <td>③-B</td>
+    </tr>
+</table>
+
+<div class="callout callout-warn">
+    <div class="callout-title">⚠ 核心约束</div>
+    VL 是唯一瓶颈：一份 20 页 PPT 需要 20 次 VL 调用，在 1 QPS 下最少耗时 20 秒。
+    所有架构设计都以"不突破 VL 1 QPS"为约束条件展开。
+</div>
+</section>
+
+<!-- ═══════════════════ SECTION 2 ══════════════════════════ -->
+<section id="why-split">
+<h2><span class="section-num">2</span>为什么要把流水线拆成三段</h2>
+
+<p><strong>不拆分时</strong>（一个大任务）：</p>
+<pre><code>VL Worker (concurrency=1)
+
+User A:  [①② 截图] [③A VL·VL·VL·VL·VL] [③B 音频] [④⑤⑥⑦ LLM] [⑧⑨ 报告入库]
+User B:                                                               ← B 全程等待，VL Worker 空转</code></pre>
+<p>A 在跑 LLM 评分时，VL Worker 闲着，B 只能干等。</p>
+
+<p><strong>拆分三段后</strong>（推荐架构）：</p>
+<pre class="diagram"><code>VL Worker (concurrency=1)       Audio Worker          LLM Worker (concurrency=10)
+
+User A:  [①② + ③A VL·VL·VL] ──完成──►               [④⑤⑥⑦⑧⑨ LLM评分报告入库]
+              [③B 音频转录] ─────────────────────────►┘（两路汇合后触发LLM段）
+User B:                   [①② + ③A VL·VL·VL] ──完成──►               [④⑤⑥⑦⑧⑨]
+                        [③B 音频转录] ───────────────────────────────►┘
+       ↑ A 的 VL 一结束，B 的 VL 立刻开始，互不等待 LLM 段</code></pre>
+
+<p><strong>三段之间用 Celery chord（扇出→汇合）连接</strong>：</p>
+<ul>
+    <li><strong>VL 段</strong>和<strong> Audio 段</strong>并行跑，都完成后自动触发<strong> LLM 段</strong></li>
+    <li>不同用户的 VL 段在同一个 <code>vl_tasks</code> 队列里排队，先到先得</li>
+    <li>LLM 段因为 10 QPS 富裕，多用户的 LLM 段可以<strong>真正并行</strong>执行</li>
+</ul>
+</section>
+
+<!-- ═══════════════════ SECTION 3 ══════════════════════════ -->
+<section id="pipeline">
+<h2><span class="section-num">3</span>评分流水线全景（9 个阶段）</h2>
+
+<pre class="diagram"><code>用户上传 PPT + 音频（可选）
+    │
+    ▼ [FastAPI 接入层：立即返回 task_id，不等待]
+    │
+    ▼ ① PPT → PDF（LibreOffice）—— 耗时 5~30s，在 Worker 进程内执行
+    │
+    ▼ ② PDF → PNG 截图（PyMuPDF，每页一张）—— 耗时 1~5s，Worker 内执行
+    │
+    ▼ ③ 并行执行（asyncio.gather）
+    │    ├─ 线路A：逐页调用 qwen-vl-plus 分析视觉内容
+    │    │         <span class="tag tag-bottleneck">瓶颈</span> 60 RPM = 1 QPS，Redis 分布式令牌桶严格限速
+    │    └─ 线路B：音频转录（AssemblyAI API 或 faster-whisper）—— 无需限速
+    │
+    ▼ ④ 合并上下文 —— 纯内存操作，无 IO
+    │
+    ▼ ⑤ 分类 LLM（qwen3-max）→ 判断 PPT 类型 —— 1次 LLM 调用，取 1 个令牌
+    │
+    ▼ ⑥ 3个维度 LLM 并行评分（asyncio.gather）—— 3次并行 LLM 调用，同时取 3 个令牌
+    │    ├─ 维度A：结构与逻辑（含 thinking 推理链）
+    │    ├─ 维度B：内容与价值（含 thinking 推理链）
+    │    └─ 维度C：语言与呈现（仅有音频时）
+    │
+    ▼ ⑦ 汇总 LLM —— 1次 LLM 调用，取 1 个令牌
+    │
+    ▼ ⑧ 生成 PDF 报告（reportlab）—— CPU 密集，Worker 内执行
+    │
+    ▼ ⑨ 入库（scoring_records + llm_reasoning）+ SSE 通知前端</code></pre>
+
+<table>
+    <tr><th>阶段</th><th>API</th><th>调用次数</th><th>限速约束</th></tr>
+    <tr><td>③-A</td><td>qwen-vl-plus</td><td>N 次（N=幻灯片页数）</td><td><span class="tag tag-bottleneck">60 RPM = 1 QPS</span></td></tr>
+    <tr><td>③-B</td><td>AssemblyAI / Whisper</td><td>1 次</td><td>无需限速</td></tr>
+    <tr><td>⑤</td><td>qwen3-max</td><td>1 次</td><td>600 RPM = 10 QPS</td></tr>
+    <tr><td>⑥</td><td>qwen3-max</td><td>2~3 次（并行）</td><td>600 RPM，同时消耗 3 个令牌</td></tr>
+    <tr><td>⑦</td><td>qwen3-max</td><td>1 次</td><td>600 RPM</td></tr>
+</table>
+</section>
+
+<!-- ═══════════════════ SECTION 4 ══════════════════════════ -->
+<section id="architecture">
+<h2><span class="section-num">4</span>整体架构图</h2>
+
+<pre class="diagram"><code>
+┌───────────────────────────────────────────┐
+│  Nginx（反向代理 + 接入限流）              │
+│  · 每 IP 上传限流：1 req/s                │
+│  · 全局 API 限流：5 req/s                 │
+└───────────────┬───────────────────────────┘
+                │
+    ┌───────────┴────────────┐
+    │                        │
+┌───▼──────────┐      ┌──────▼──────────┐
+│ FastAPI 实例1 │      │ FastAPI 实例2   │   ← 无状态，可横向扩展
+│ (薄接入层)   │      │ (薄接入层)      │     只做：接收文件→写Redis→返回task_id
+└───────┬──────┘      └──────┬──────────┘
+        └──────────┬──────────┘
+                   ▼
+┌──────────────────────────────────────────┐
+│              Redis                        │
+│  DB 0: Celery Broker（任务队列）          │
+│  DB 1: Celery Backend（任务结果）         │
+│  DB 2: task:{id} 进度 hash               │
+│  DB 3: Redis 分布式令牌桶（全局限流）      │
+└──────────┬────────────────────┬──────────┘
+           │                    │
+           ▼                    ▼
+┌──────────────────┐   ┌────────────────────────┐
+│  VL Worker       │   │  LLM Worker             │
+│  并发: 1         │   │  并发: 10                │
+│  令牌桶: 1 req/s │   │  令牌桶: 10 req/s        │
+│  队列: vl_tasks  │   │  队列: llm_tasks         │
+│  处理阶段 ①②③A  │   │  处理阶段 ⑤⑥⑦           │
+└────────┬─────────┘   └──────────┬─────────────┘
+         └──────────┬──────────────┘
+                    ▼
+┌──────────────────────────────────────────┐
+│         阿里云 DashScope API              │
+│  qwen-vl-plus-0710: 60 RPM  / 1 QPS     │
+│  qwen3-max:        600 RPM  / 10 QPS    │
+└──────────────────────────────────────────┘
+                    │
+                    ▼
+┌──────────────────────────────────────────┐
+│  PostgreSQL（主从复制）                   │
+│  主库: 写（评分记录、推理日志）            │
+│  从库: 读（历史查询、报表统计）            │
+└──────────────────────────────────────────┘</code></pre>
+
+<h3>Worker 配置表</h3>
+<table>
+    <tr><th>Worker</th><th>队列</th><th>进程数</th><th>并发数</th><th>令牌桶（Redis分布式）</th><th>说明</th></tr>
+    <tr><td>VL Worker</td><td>vl_tasks</td><td><strong>1</strong></td><td><strong>1</strong></td><td>1 req/s</td><td>60 RPM 物理上限</td></tr>
+    <tr><td>Audio Worker</td><td>audio_tasks</td><td><strong>1</strong></td><td><strong>10</strong></td><td>无</td><td>AssemblyAI 200并发，IO等待为主</td></tr>
+    <tr><td>LLM Worker</td><td>llm_tasks</td><td><strong>1</strong></td><td><strong>10</strong></td><td>10 req/s</td><td>600 RPM = 10 QPS，并发10正好打满</td></tr>
+</table>
+
+<h3>多用户并发执行时序（20页PPT举例）</h3>
+<pre class="timeline"><code>时间轴 →  0s     20s          25s         45s
+─────────────────────────────────────────────────────
+User A:   [VL×20页 = 20s] [LLM⑤⑥⑦+报告 = 5s]
+User B:          [VL×20页 = 20s]      [LLM⑤⑥⑦+报告 = 5s]
+User C:                   [VL×20页 = 20s]      [LLM = 5s]
+
+Audio A:  [AssemblyAI ≈5s]（与VL并行，不占VL Worker）
+Audio B:          [AssemblyAI ≈5s]</code></pre>
+
+<div class="callout callout-info">
+    <div class="callout-title">💡 关键</div>
+    A 的 20 页 VL 跑完（20s），立刻释放 VL Worker → B 的 VL 立刻开始。
+    A 的 LLM 段和 B 的 VL 段<strong>同时运行</strong>，互不阻塞。
+    总吞吐：每 20 秒完成 1 个用户的 VL 分析（1 QPS 物理上限决定）。
+</div>
+</section>
+
+<!-- ═══════════════════ SECTION 5 ══════════════════════════ -->
+<section id="pillar1">
+<h2><span class="section-num">5</span>核心四板斧实现</h2>
+
+<h3 id="pillar1">板斧一：Redis 分布式令牌桶</h3>
+
+<h4>为什么是令牌桶？</h4>
+<table>
+    <tr><th>算法</th><th>特点</th><th>问题</th></tr>
+    <tr><td>计数器</td><td>实现最简单</td><td>临界时间点可能突刺 2 倍流量</td></tr>
+    <tr><td>漏桶</td><td>严格匀速输出</td><td>不允许任何突发，吞吐率低</td></tr>
+    <tr><td style="color:var(--success)">令牌桶</td><td style="color:var(--success)">平均速率受控，允许适度突发</td><td style="color:var(--success)">✅ 最适合 API 限速场景</td></tr>
+    <tr><td>滑动窗口</td><td>精确统计，无突刺</td><td>实现复杂，内存占用高</td></tr>
+</table>
+<p>关键优势：阶段⑥ 3个维度并行评分时，可同时取 3 个令牌（突发），只要总速率不超过 10 QPS 即可。</p>
+
+<div class="callout callout-warn">
+    <div class="callout-title">⚠ 核心约束</div>
+    API 配额是主账号全局共享的。qwen-vl-plus-0710 = 60 RPM = 1 QPS，qwen3-max = 600 RPM = 10 QPS。
+    即使当前只部署 1 个 Worker，未来扩容时本地令牌桶各自独立、合计超速→429。
+    因此<strong>必须从一开始就用 Redis 分布式令牌桶</strong>保证全局不超 API 配额。
+</div>
+
+<h4>实现：Redis Lua 脚本原子扣令牌</h4>
+<pre><code># backend/core/distributed_rate_limiter.py
+import time, asyncio
+from redis.asyncio import Redis
+
+LUA_ACQUIRE_TOKEN = """
+-- KEYS[1]: 令牌桶的 Redis key，如 "rate_limit:vl"
+-- ARGV[1]: 每秒产生令牌数 (rate)
+-- ARGV[2]: 当前时间戳 (秒)
+-- ARGV[3]: 请求令牌数 (默认 1)
+
+local key        = KEYS[1]
+local rate       = tonumber(ARGV[1])
+local now        = tonumber(ARGV[2])
+local requested  = tonumber(ARGV[3]) or 1
+local window     = 1.0
+
+local last_time  = tonumber(redis.call('HGET', key, 'last_time') or now)
+local tokens     = tonumber(redis.call('HGET', key, 'tokens') or rate)
+
+-- 按时间流逝补充令牌
+local elapsed = math.min(now - last_time, window)
+tokens = math.min(rate, tokens + elapsed * rate)
+
+if tokens >= requested then
+    tokens = tokens - requested
+    redis.call('HSET', key, 'tokens', tokens, 'last_time', now)
+    redis.call('EXPIRE', key, 3)
+    return 1   -- 获取成功
+else
+    redis.call('HSET', key, 'last_time', now)
+    redis.call('EXPIRE', key, 3)
+    return 0   -- 无可用令牌
+end
+"""
+
+
+class DistributedTokenBucket:
+    """Redis 分布式令牌桶 —— 所有 Worker 共享同一配额"""
+
+    def __init__(self, redis: Redis, key: str, rate: float):
+        self.redis = redis
+        self.key = key
+        self.rate = rate
+        self._script = self.redis.register_script(LUA_ACQUIRE_TOKEN)
+
+    async def acquire(self) -> bool:
+        now = time.time()
+        result = await self._script(keys=[self.key], args=[self.rate, now, 1])
+        return result == 1
+
+    async def wait_and_acquire(self, poll_interval: float = 0.1):
+        while not await self.acquire():
+            await asyncio.sleep(poll_interval)
+
+    async def __aenter__(self):
+        await self.wait_and_acquire()
+        return self
+
+    async def __aexit__(self, *args):
+        pass  # 令牌已消费，无需归还
+
+
+# ── 全局限流器（启动时初始化一次）──
+VL_RATE_LIMITER  = None   # DistributedTokenBucket(redis, "rate_limit:vl",  1.0)
+LLM_RATE_LIMITER = None   # DistributedTokenBucket(redis, "rate_limit:llm", 10.0)
+
+
+# ── 使用示例 ─────────────────────────────────────────────────
+async def analyze_slide_page(b64: str, prompt: str):
+    async with VL_RATE_LIMITER:        # Redis 分布式令牌桶，全局 1 QPS
+        return await asyncio.to_thread(_call_vl_api, b64, prompt)
+
+async def run_dimension_scoring(context: str, dim: str):
+    async with LLM_RATE_LIMITER:       # 3 个并行调用各自竞争令牌桶
+        return await asyncio.to_thread(_call_llm_api, context, dim)</code></pre>
+</section>
+
+<!-- ═══════════════════ Pillar 2 ══════════════════════════ -->
+<section id="pillar2">
+<h3>板斧二：任务队列（Celery + Redis）</h3>
+
+<table>
+    <tr><th></th><th>任务队列（我们的系统）</th><th>消息队列（如Kafka）</th></tr>
+    <tr><td>每条消息的消费者数量</td><td>1个</td><td>N个（多下游同时消费）</td></tr>
+    <tr><td>结果归属</td><td>返回给提交任务的用户</td><td>广播给所有订阅者</td></tr>
+    <tr><td>适用中间件</td><td style="color:var(--success)">Redis + Celery ✅</td><td>Kafka / RabbitMQ</td></tr>
+</table>
+
+<pre><code># backend/tasks/pipeline.py
+from celery import Celery
+
+celery_app = Celery("ppt_scorer",
+    broker="redis://localhost:6379/0",
+    backend="redis://localhost:6379/1",
+)
+celery_app.conf.update(
+    task_acks_late=True,             # Worker 崩溃时任务自动重回队列
+    task_reject_on_worker_lost=True,
+    worker_max_tasks_per_child=50,   # 防内存泄漏
+    task_serializer="json",
+)
+
+@celery_app.task(bind=True, max_retries=3, queue="vl_tasks",
+                 name="tasks.run_full_pipeline")
+def run_full_pipeline(self, task_id: str, pdf_path: str, audio_path: str | None):
+    """完整9步流水线入口。Celery Worker 是同步进程，内部 asyncio.run() 驱动异步"""
+    try:
+        asyncio.run(_async_pipeline(task_id, pdf_path, audio_path))
+    except RateLimitExceeded as exc:
+        raise self.retry(exc=exc, countdown=60)
+    except Exception as exc:
+        _set_task_state(task_id, status="error", message=str(exc)[:300])
+        raise
+
+
+async def _async_pipeline(task_id, pdf_path, audio_path):
+    # ① PPT→PDF      ② PDF→PNG
+    # ③ VL分析 + 音频转录（asyncio.gather 并行）
+    # ④ 合并上下文
+    # ⑤ 分类 LLM    ⑥ 3维度并行评分    ⑦ 汇总 LLM
+    # ⑧ 生成 PDF 报告    ⑨ 入库</code></pre>
+</section>
+
+<!-- ═══════════════════ Pillar 3 ══════════════════════════ -->
+<section id="pillar3">
+<h3>板斧三：幂等性 + VL 断点续跑 + 单页缓存</h3>
+
+<h4>幂等保护</h4>
+<table>
+    <tr><th>步骤</th><th>幂等方案</th></tr>
+    <tr><td>⑧ 报告文件生成</td><td>检查 <code>outputs/report_{task_id}.pdf</code> 是否已存在</td></tr>
+    <tr><td>⑨ 写库</td><td><code>task_id</code> 为唯一键，<code>INSERT IF NOT EXISTS</code></td></tr>
+</table>
+
+<h4>VL 断点续跑机制</h4>
+<div class="callout callout-warn">
+    <div class="callout-title">⚠ 动机</div>
+    VL 是串行瓶颈，20 页 PPT 需 20 秒。一旦 Worker 崩溃，已分析的 19 页全作废，浪费 API 配额且用户等待时间翻倍。
+</div>
+
+<pre><code>Redis Key 设计：
+  task:{task_id}:pages          → Hash  {page_1: "{...VL结果JSON...}", page_2: "{...}"}
+  task:{task_id}:pages_done     → Set   {1, 3, 5, 7, 9, 11}   ← 已完成的页码集合
+  task:{task_id}:pages_total    → String "20"                  ← 总页数
+
+# backend/tasks/vl_checkpoint.py
+
+async def _analyze_all_slides_with_checkpoint(task_id, images_b64):
+    total_pages = len(images_b64)
+    await redis.set(f"task:{task_id}:pages_total", total_pages)
+
+    # 读取已完成的页码（崩溃恢复）
+    done_pages = await redis.smembers(REDIS_DONE_KEY.format(task_id=task_id))
+    done_set = {int(p) for p in done_pages} if done_pages else set()
+
+    results = []
+    for i, b64 in enumerate(images_b64):
+        page_no = i + 1
+
+        # 断点续跑：跳过已完成的页
+        if page_no in done_set:
+            cached = await redis.hget(REDIS_PAGE_KEY.format(task_id=task_id), f"page_{page_no}")
+            if cached:
+                results.append(json.loads(cached))
+                continue
+
+        # 正常 VL 调用（经令牌桶限速）
+        slide_info = await analyze_slide_page(b64, SLIDE_ANALYSIS_PROMPT)
+
+        # 原子操作：先写结果，再标记完成
+        async with redis.pipeline() as pipe:
+            pipe.hset(REDIS_PAGE_KEY.format(task_id=task_id), f"page_{page_no}", json.dumps(slide_info))
+            pipe.sadd(REDIS_DONE_KEY.format(task_id=task_id), str(page_no))
+            pipe.expire(REDIS_PAGE_KEY.format(task_id=task_id), 86400)
+            pipe.expire(REDIS_DONE_KEY.format(task_id=task_id), 86400)
+            await pipe.execute()
+
+        results.append(slide_info)
+    return results</code></pre>
+
+<h4>单页缓存（相同图片复用）</h4>
+<pre><code># 图片 MD5 作为缓存 key — 模板封面页、目录页等可复用
+async def analyze_slide_page_cached(b64: str, prompt: str):
+    img_hash = hashlib.md5(b64.encode()).hexdigest()
+    prompt_hash = hashlib.md5(prompt.encode()).hexdigest()
+    cache_key = f"vl_cache:{img_hash}:{prompt_hash}"
+
+    cached = await redis.get(cache_key)
+    if cached:
+        return json.loads(cached)
+
+    result = await analyze_slide_page(b64, prompt)
+    await redis.setex(cache_key, 3600 * 72, json.dumps(result))  # 3天过期
+    return result</code></pre>
+
+<div class="callout callout-interview">
+    <div class="callout-title">🎤 面试话术</div>
+    VL 串行 20 页，崩溃从头来是不可接受的。
+    我们通过 Redis 记录每页完成状态，Worker 重启后自动跳过已完成页，<strong>从断点继续</strong>。
+    同时缓存相同图片的 VL 结果（如模板封面页），减少重复 API 调用，<strong>降低成本</strong>。
+    这是真实生产环境中串行瓶颈任务的<strong>标准容错方案</strong>。
+</div>
+</section>
+
+<!-- ═══════════════════ Pillar 4 ══════════════════════════ -->
+<section id="pillar4">
+<h3>板斧四：熔断 + 多模型降级 + 多 Key 轮询</h3>
+
+<h4>熔断器状态机（不是简单 60 秒定时器）</h4>
+
+<pre class="diagram"><code>                  ┌──────────────────────────────────────────┐
+                  │           CLOSED（正常态）                │
+                  │  所有请求正常通过                         │
+                  │  fail_max=5  计数器追踪连续失败次数        │
+                  └──────┬──────────────┬────────────────────┘
+                         │              │
+              请求成功    │              │ 连续失败 ≥ 5 次
+              fail_count=0│              ▼
+                         │    ┌──────────────────────────────┐
+                         │    │     OPEN（熔断态）            │
+                         │    │  拒绝所有请求，立即抛异常      │
+                         │    │  不等待、不消耗 API 配额       │
+                         │    │  冷却 reset_timeout = 60s     │
+                         │    └────────────┬─────────────────┘
+                         │                 │
+                         │                 │ 60 秒后
+                         │                 ▼
+                         │    ┌──────────────────────────────┐
+                         │    │   HALF-OPEN（半开探测态）     │
+                         │    │  仅放行 1 个探测请求           │
+                         │    └──────┬───────────┬───────────┘
+                         │           │           │
+                         │  探测成功  │           │ 探测失败
+                         │  fail_count=0          │ 重新熔断
+                         ◄───────────┘           └──────────► OPEN
+
+关键：不是"60 秒后全量恢复"，而是先放 1 个请求试探，成功才恢复，失败继续熔断。</code></pre>
+
+<pre><code># backend/core/circuit_breaker.py
+from pybreaker import CircuitBreaker, CircuitBreakerError
+
+vl_breaker = CircuitBreaker(fail_max=5, reset_timeout=60, name="vl_api")
+llm_breaker = CircuitBreaker(fail_max=10, reset_timeout=30, name="llm_api")
+
+async def analyze_slide_page(b64, prompt):
+    async with VL_RATE_LIMITER:
+        try:
+            return await asyncio.to_thread(vl_breaker(_call_vl_api), b64, prompt)
+        except CircuitBreakerError:
+            return _default_slide_info()   # 降级：返回空白占位数据</code></pre>
+
+<h4>降级策略（三层：同平台 → 跨供应商 → 兜底）</h4>
+
+<table>
+    <tr><th>主 API</th><th>故障条件</th><th>降级1<br><small>同平台，不怕限流</small></th><th>降级2<br><small>跨供应商，真·容灾</small></th><th>最终兜底</th></tr>
+    <tr>
+        <td>qwen-vl-plus</td><td>连续 5 次超时/5xx</td>
+        <td>→ <strong>qwen3-vl-flash</strong><br><small>同 Key、新一代、轻量快速</small></td>
+        <td>→ <strong>GLM-4V-Flash</strong><br><small>需智谱 Key<br>国产、免费、故障域隔离</small></td>
+        <td>跳过图像分析<br>仅用PPT文字评分</td>
+    </tr>   
+    <tr>
+        <td>qwen3-max</td><td>连续 5 次超时/5xx</td>
+        <td>→ <strong>qwen-turbo</strong><br><small>同 Key、零成本</small></td>
+        <td>→ <strong>GLM-4-Flash</strong><br><small>需智谱 Key<br>免费文本模型、故障域隔离</small></td>
+        <td>返回"评分服务暂时不可用"</td>
+    </tr>
+    <tr>
+        <td>AssemblyAI</td><td>连续 3 次失败</td>
+        <td>→ 本地 <strong>faster-whisper</strong></td>
+        <td>—</td>
+        <td>跳过音频，纯PPT模式</td>
+    </tr>
+</table>
+
+
+<h4>多 Key / 多账号轮询</h4>
+<div class="callout callout-info">
+    <div class="callout-title">💡 动机</div>
+    单账号 qwen-vl-plus-0710 只有 60 RPM = 1 QPS。团队协作时，可用多个子账号的 API Key 做轮询，
+    <strong>总配额 = N × 60 RPM</strong>，线性提升吞吐。
+</div>
+
+<pre><code># backend/core/api_key_pool.py
+
+class APIKeyPool:
+    """多 Key 轮询池，支持熔断标记和权重"""
+
+    def __init__(self, keys: list[str]):
+        self._keys = keys
+        self._idx = 0
+        self._lock = asyncio.Lock()
+        self._disabled: dict[str, float] = {}  # key → 恢复时间戳
+
+    async def get_key(self) -> Optional[str]:
+        """Round-Robin 获取可用 Key，自动跳过故障 Key"""
+        async with self._lock:
+            now = time.time()
+            self._disabled = {k: v for k, v in self._disabled.items() if v > now}
+            available = [k for k in self._keys if k not in self._disabled]
+            if not available:
+                logger.error("所有 API Key 不可用，进入全降级模式")
+                return None
+            key = available[self._idx % len(available)]
+            self._idx = (self._idx + 1) % len(available)
+            return key
+
+    def disable_key(self, key: str, cooldown_seconds: int = 60):
+        """标记 key 不可用（429 / 5xx 时调用），冷却后自动恢复"""
+        self._disabled[key] = time.time() + cooldown_seconds
+
+
+# ── 多模型降级链（三层：同平台 → 跨供应商 → 兜底）────
+VL_FALLBACK_CHAIN = [
+    {"model": "qwen-vl-plus-0710", "pool": APIKeyPool(keys_qwen)},     # 主（DashScope）
+    {"model": "qwen3-vl-flash",    "pool": APIKeyPool(keys_qwen)},     # 降级1（同Key，Qwen3-VL轻量）
+    {"model": "glm-4v-flash",      "pool": APIKeyPool(keys_zhipu)},    # 降级2（智谱，国产免费视觉模型）
+    {"model": "skip_image",        "pool": None},                      # 降级3：兜底
+]
+
+# LLM 降级链（三层：同平台 → 跨供应商 → 兜底）
+LLM_FALLBACK_CHAIN = [
+    {"model": "qwen3-max",         "pool": APIKeyPool(keys_qwen)},     # 主（DashScope）
+    {"model": "qwen-turbo",        "pool": APIKeyPool(keys_qwen)},     # 降级1（同Key）
+    {"model": "glm-4-flash",       "pool": APIKeyPool(keys_zhipu)},    # 降级2（智谱，免费文本模型）
+    {"model": "service_unavailable","pool": None},                     # 降级3：兜底
+]</code></pre>
+
+<pre><code># .env
+DASHSCOPE_API_KEY=sk-xxxxxxxxxxxxxxxx        # 阿里云百炼 Key（必填）
+DASHSCOPE_EXTRA_KEYS=sk-aaa,sk-bbb           # 多Key轮询（可选），逗号分隔
+ZHIPU_API_KEY=xxxxxxxxxxxxxxxx.xxxxxxxx      # 智谱 Key（VL+LLM跨供应商降级共用，免费）
+API_KEY_POOL_ENABLED=false</code></pre>
+
+<div class="callout callout-success">
+    <div class="callout-title">✅ 多 Key 轮询效果</div>
+    每个 DashScope Key 的配额是<strong>按模型独立计算的</strong>——VL 60 RPM 和 LLM 600 RPM 互不占用。
+    <br><br>
+    <table style="margin:8px 0">
+        <tr><th></th><th>VL 配额</th><th>LLM 配额</th><th>VL Worker 并发</th></tr>
+        <tr><td>1 个 Key</td><td>60 RPM</td><td>600 RPM</td><td>1 并发</td></tr>
+        <tr><td>3 个 Key 轮询</td><td>180 RPM</td><td>1800 RPM</td><td>3 并发</td></tr>
+        <tr><td>5 个 Key 轮询</td><td>300 RPM</td><td>3000 RPM</td><td>5 并发</td></tr>
+    </table>
+    <br>
+    每个 Key 独立熔断，被限流自动跳过。轮询 = 线性叠加配额。
+</div>
+</section>
+
+<!-- ═══════════════════ SECTION 6 ══════════════════════════ -->
+<section id="layers">
+<h2><span class="section-num">6</span>各层详细设计</h2>
+
+<h3 id="layer-nginx">6.1 Nginx 接入层</h3>
+<pre><code># /etc/nginx/conf.d/ppt.conf
+limit_req_zone $binary_remote_addr zone=api_limit:10m rate=5r/s;
+limit_req_zone $binary_remote_addr zone=upload_limit:10m rate=1r/s;
+
+upstream fastapi_backends {
+    least_conn;
+    server 127.0.0.1:8001 weight=1;
+    server 127.0.0.1:8002 weight=1;
+    keepalive 32;
+}
+
+server {
+    listen 443 ssl;
+    client_max_body_size 100M;
+
+    location /api/analyze {
+        limit_req zone=upload_limit burst=2 nodelay;
+        proxy_pass http://fastapi_backends;
+        proxy_read_timeout 10s;          # 已异步，立即返回 task_id
+    }
+
+    location /api/task/ {
+        limit_req zone=api_limit burst=10 nodelay;
+        proxy_pass http://fastapi_backends;
+        proxy_buffering off;              # SSE 长连接需关闭缓冲
+        proxy_cache off;
+    }
+}</code></pre>
+
+<h3 id="layer-api">6.2 FastAPI 接入层（薄层设计）</h3>
+<p>接入层职责：<strong>接收文件 → 检查队列 → 写 Redis → 返回 task_id</strong>，绝不执行 LLM 调用。</p>
+
+<pre><code># backend/routers/analyze.py
+MAX_QUEUE_SIZE = 200
+
+@router.post("/api/analyze", status_code=202)
+async def submit_analyze(pdf_file: UploadFile, audio_file: UploadFile = None, current_user = Depends(get_optional_user)):
+    # 背压控制
+    queue_depth = await redis.llen("celery:vl_tasks")
+    if queue_depth > MAX_QUEUE_SIZE:
+        raise HTTPException(503, f"服务繁忙，当前排队 {queue_depth} 个任务")
+
+    task_id = str(uuid.uuid4())
+
+    # 保存文件 + 写 Redis 进度
+    pdf_path = await save_upload(pdf_file, task_id)
+    audio_path = await save_upload(audio_file, task_id) if audio_file else None
+    await redis.hset(f"task:{task_id}", mapping={"status": "queued", "percent": 0, ...})
+    await redis.expire(f"task:{task_id}", 86400)
+
+    # 根据用户等级选队列（VIP 插队）
+    queue = "vl_tasks_high" if getattr(current_user, "is_vip", False) else "vl_tasks_normal"
+    run_full_pipeline.apply_async(args=[task_id, pdf_path, audio_path], queue=queue,
+                                   task_id=task_id, expires=3600)
+
+    return {"task_id": task_id, "queue_position": queue_depth + 1,
+            "stream_url": f"/api/task/{task_id}/stream"}
+
+@router.get("/api/task/{task_id}/stream")
+async def task_progress_stream(task_id: str):
+    """SSE 推送进度，替代同步轮询"""
+    async def generator():
+        while True:
+            state = await redis.hgetall(f"task:{task_id}")
+            if not state: break
+            yield f"data: {json.dumps(state)}\n\n"
+            if state.get("status") in ("done", "error"): break
+            await asyncio.sleep(1.0)
+    return EventSourceResponse(generator())</code></pre>
+
+<h3 id="layer-worker">6.3 Celery Worker 层</h3>
+<pre><code># backend/tasks/analyze.py
+celery_app = Celery("ppt_scorer",
+    broker="redis://localhost:6379/0", backend="redis://localhost:6379/1")
+celery_app.conf.update(
+    task_serializer="json", result_expires=3600,
+    worker_max_tasks_per_child=50,       # 防内存泄漏
+    task_acks_late=True,                 # Worker 崩溃后任务自动重入队列
+    task_reject_on_worker_lost=True,
+)
+
+@celery_app.task(bind=True, max_retries=3, default_retry_delay=30,
+                 queue="vl_tasks", name="tasks.analyze_presentation")
+def analyze_task(self, task_id: str, pdf_path: str, audio_path: str | None):
+    try:
+        asyncio.run(_async_analyze_pipeline(task_id, pdf_path, audio_path))
+    except RateLimitError as exc:
+        raise self.retry(exc=exc, countdown=30)
+    except Exception as exc:
+        _set_progress(task_id, status="error", message=str(exc)[:200])
+        raise
+
+
+async def _async_analyze_pipeline(task_id, pdf_path, audio_path):
+    from ..core.distributed_rate_limiter import VL_RATE_LIMITER, LLM_RATE_LIMITER
+
+    # Stage 1: VL 分析（Redis 分布式令牌桶全局限流）
+    async def vl_call_with_limit(b64, prompt):
+        async with VL_RATE_LIMITER:
+            return await asyncio.to_thread(analyzer._call_vl_model_api, b64, prompt)
+
+    slides = await analyzer._analyze_slides_with_caller(vl_call_with_limit)
+
+    # Stage 2: LLM 评分（Redis 分布式令牌桶全局限流）
+    async def llm_call_with_limit(prompt):
+        async with LLM_RATE_LIMITER:
+            return await asyncio.to_thread(scorer._call_llm_api, prompt)
+
+    result = await scorer.score_with_caller(slides, llm_call_with_limit)
+
+    # Stage 3: 生成报告 & 写入数据库
+    report_path = await generate_report(result, task_id)
+    await save_to_db(task_id, result, pdf_path)</code></pre>
+
+<h3 id="layer-priority">6.4 优先级队列（VIP 用户插队）</h3>
+<pre><code># 三级优先级队列
+CELERY_TASK_QUEUES = (
+    Queue("vl_tasks_high",   routing_key="vl.high"),    # VIP
+    Queue("vl_tasks_normal", routing_key="vl.normal"),  # 普通用户
+    Queue("vl_tasks_batch",  routing_key="vl.batch"),   # 批量任务（最低优先级）
+)
+
+# 提交时根据用户等级选择队列
+queue_name = "vl_tasks_high" if current_user.is_vip else "vl_tasks_normal"
+analyze_task.apply_async(args=[...], queue=queue_name)</code></pre>
+
+<h3 id="layer-db">6.5 数据库层（读写分离）</h3>
+<pre><code># backend/db/database.py
+write_engine = create_async_engine(
+    "postgresql+asyncpg://user:pass@primary-db:5432/ppt_scoring",
+    pool_size=20, max_overflow=10)
+read_engine = create_async_engine(
+    "postgresql+asyncpg://user:pass@replica-db:5432/ppt_scoring",
+    pool_size=30, max_overflow=20)
+
+WriteSession = sessionmaker(write_engine, class_=AsyncSession)
+ReadSession  = sessionmaker(read_engine,  class_=AsyncSession)</code></pre>
+</section>
+
+<!-- ═══════════════════ SECTION 7 ══════════════════════════ -->
+<section id="deployment">
+<h2><span class="section-num">7</span>部署配置</h2>
+
+<h3>docker-compose.yml</h3>
+<pre><code>version: "3.9"
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ppt_scoring
+      POSTGRES_USER: ppt_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes: [postgres_data:/var/lib/postgresql/data]
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --maxmemory 512mb --maxmemory-policy allkeys-lru
+    volumes: [redis_data:/data]
+
+  api:
+    build: ./backend
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4
+    environment:
+      DATABASE_URL: postgresql+asyncpg://ppt_user:${DB_PASSWORD}@postgres:5432/ppt_scoring
+      REDIS_URL: redis://redis:6379/0
+      DASHSCOPE_API_KEY: ${DASHSCOPE_API_KEY}
+    deploy:
+      replicas: 2
+
+  # VL Worker：必须 = 1（60 RPM 物理上限）
+  # 扩容条件：提额到 120+ RPM → VL_WORKER_REPLICAS=2 + Redis令牌桶 rate=2
+  vl-worker:
+    build: ./backend
+    command: >
+      celery -A tasks.analyze worker
+      --queues vl_tasks_high,vl_tasks_normal,vl_tasks_batch
+      --concurrency ${VL_WORKER_CONCURRENCY:-1}
+      --loglevel info
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      DASHSCOPE_API_KEY: ${DASHSCOPE_API_KEY}
+    deploy:
+      replicas: ${VL_WORKER_REPLICAS:-1}
+
+  # LLM Worker：并发 10（600 RPM = 10 QPS，正好打满）
+  # 提额到 1200 RPM → LLM_WORKER_REPLICAS=2
+  llm-worker:
+    build: ./backend
+    command: >
+      celery -A tasks.analyze worker
+      --queues llm_tasks
+      --concurrency ${LLM_WORKER_CONCURRENCY:-10}
+      --loglevel info
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      DASHSCOPE_API_KEY: ${DASHSCOPE_API_KEY}
+    deploy:
+      replicas: ${LLM_WORKER_REPLICAS:-1}
+
+  flower:
+    image: mher/flower:2.0
+    command: celery flower --broker=redis://redis:6379/0 --port=5555
+    ports: ["5555:5555"]
+    environment:
+      FLOWER_BASIC_AUTH: admin:${FLOWER_PASSWORD}
+
+  nginx:
+    image: nginx:alpine
+    ports: ["80:80", "443:443"]
+    volumes:
+      - ./nginx/ppt.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/ssl:/etc/nginx/ssl
+    depends_on: [api]
+
+volumes:
+  postgres_data:
+  redis_data:</code></pre>
+
+<h3>环境变量（.env）</h3>
+<pre><code># ── Worker 副本数（与 API 配额强绑定，扩缩容无需改 docker-compose）──
+VL_WORKER_REPLICAS=1
+VL_WORKER_CONCURRENCY=1
+LLM_WORKER_REPLICAS=1
+LLM_WORKER_CONCURRENCY=10
+
+# ── 多账号轮询（可选）──
+DASHSCOPE_API_KEY=sk-xxxxxxxxxxxxxxxx
+DASHSCOPE_EXTRA_KEYS=
+API_KEY_POOL_ENABLED=false</code></pre>
+
+<div class="callout callout-interview">
+    <div class="callout-title">🎤 面试话术</div>
+    Worker 数量<strong>与 API 配额强绑定</strong>，不是"越多越好"。
+    架构预留了扩容空间，提额后只需改环境变量 + Redis 令牌桶 rate，<strong>无需重构代码</strong>。
+</div>
+</section>
+
+<!-- ═══════════════════ SECTION 8 ══════════════════════════ -->
+<section id="timeout">
+<h2><span class="section-num">8</span>超时分层控制</h2>
+<pre class="diagram"><code>Nginx proxy_read_timeout:      10s   ← 只等接入层返回 task_id
+FastAPI 文件保存 + 写Redis:     5s   ← 超时返回 503
+Celery 整个任务 time_limit:   600s   ← 10分钟强杀，防死任务
+  ├── ①② PPT转换+截图:        60s
+  ├── ③-A 单页 VL 调用:        30s   ← httpx timeout=30
+  ├── ③-B 音频转录:           120s
+  ├── ⑤⑥⑦ 单次 LLM 调用:      60s   ← httpx timeout=60
+  └── ⑧ 报告生成:              30s</code></pre>
+</section>
+
+<!-- ═══════════════════ SECTION 9 ══════════════════════════ -->
+<section id="backpressure">
+<h2><span class="section-num">9</span>队列背压 + 并行排队调度层</h2>
+
+<div class="callout callout-interview">
+    <div class="callout-title">🎤 面试话术</div>
+    VL 是<strong>资源受限的串行瓶颈</strong>（API 硬限制 1 QPS），但我们通过
+    <strong>任务队列 + 优先级调度 + 排队预估 + 背压控制</strong>，
+    对外提供"准并行"体验——多用户可同时提交、并行排队。
+    这是<strong>真实商用 API 受限场景的标准解法</strong>。
+</div>
+
+<h3>9.1 背压控制</h3>
+<pre class="diagram"><code>接入层检查队列深度
+    ├── vl_tasks 深度 &lt; 200  → 正常接收，返回 202
+    ├── vl_tasks 深度 200~500 → 接收但告警，前端显示"预计等待 X 分钟"
+    └── vl_tasks 深度 &gt; 500  → 拒绝，返回 503</code></pre>
+
+<h3>9.2 排队预估（ETA）</h3>
+<p>等待时间估算：<code>预计等待 = queue_position × 平均每任务VL耗时（20页约20s）</code></p>
+
+<pre><code># 接入层返回给前端
+queue_depth = await redis.llen("celery:vl_tasks_high") \
+            + await redis.llen("celery:vl_tasks_normal") \
+            + await redis.llen("celery:vl_tasks_batch")
+
+eta_seconds = queue_depth * 20  # 20s per task average
+return {
+    "task_id": task_id,
+    "queue_position": queue_depth + 1,
+    "estimated_wait_seconds": eta_seconds,
+    "estimated_wait_display": f"约 {eta_seconds // 60} 分 {eta_seconds % 60} 秒",
+}</code></pre>
+
+<h3>9.3 三级优先级队列</h3>
+<table>
+    <tr><th>队列</th><th>适用用户</th><th>说明</th></tr>
+    <tr><td>vl_tasks_high</td><td>VIP 用户</td><td>优先出队，插队执行</td></tr>
+    <tr><td>vl_tasks_normal</td><td>普通用户</td><td>先到先得</td></tr>
+    <tr><td>vl_tasks_batch</td><td>批量任务</td><td>最低优先级，闲时执行</td></tr>
+</table>
+</section>
+
+<!-- ═══════════════════ SECTION 10 ═════════════════════════ -->
+<section id="monitoring">
+<h2><span class="section-num">10</span>监控告警体系</h2>
+
+<pre class="diagram"><code>指标采集                    可视化                  告警
+Prometheus  ──────────►  Grafana Dashboard  ──►  钉钉/企微 Webhook
+     ▲
+     │ 采集
+     ├── FastAPI: prometheus-fastapi-instrumentator
+     ├── Celery:  celery-prometheus-exporter (flower /metrics)
+     ├── Redis:   redis_exporter
+     └── Postgres: postgres_exporter</code></pre>
+
+<h3>10.1 核心监控指标</h3>
+<table>
+    <tr><th>指标</th><th>告警阈值</th><th>含义</th></tr>
+    <tr><td><code>celery_tasks_total{state=&quot;FAILURE&quot;}</code></td><td>5分钟内 &gt; 10</td><td>Worker 大量失败</td></tr>
+    <tr><td><code>redis_connected_clients</code></td><td>&gt; 500</td><td>连接池耗尽</td></tr>
+    <tr><td><code>vl_queue_depth</code></td><td>&gt; 100</td><td>VL 队列积压严重</td></tr>
+    <tr><td><code>llm_queue_depth</code></td><td>&gt; 50</td><td>LLM 队列积压</td></tr>
+    <tr><td><code>task_p95_duration_seconds</code></td><td>&gt; 300</td><td>单任务耗时过长</td></tr>
+    <tr><td><code>api_429_count</code>（5分钟窗口）</td><td style="color:var(--danger)">&gt; 0</td><td><strong>触发 API 限速 429，令牌桶失效或配额超限</strong></td></tr>
+    <tr><td><code>api_request_duration_p99</code></td><td>&gt; 5s</td><td>接入层响应慢</td></tr>
+    <tr><td><code>vl_circuit_breaker_open</code></td><td>= 1</td><td>VL 熔断器打开</td></tr>
+    <tr><td><code>llm_circuit_breaker_open</code></td><td>= 1</td><td>LLM 熔断器打开</td></tr>
+</table>
+
+<h3>10.2 前端排队可视化 API</h3>
+<pre><code># GET /api/queue/status → 返回全局排队信息，前端首页展示
+{
+    "vl_queue_depth": 42,
+    "llm_queue_depth": 8,
+    "vl_current_eta_seconds": 840,           # 新提交的 VL 任务预计等待 14 分钟
+    "vl_current_eta_display": "约 14 分钟",
+    "worker_status": {
+        "vl": {"concurrency": 1, "busy": true},
+        "llm": {"concurrency": 10, "busy_slots": 3}
+    }
+}</code></pre>
+
+<h3>10.3 Prometheus 自定义指标</h3>
+<pre><code># 429 告警 Counter
+vl_429_counter = Counter("vl_api_429_total", "VL API 429 count")
+llm_429_counter = Counter("llm_api_429_total", "LLM API 429 count")
+vl_queue_gauge = Gauge("vl_queue_depth", "VL queue depth")
+llm_queue_gauge = Gauge("llm_queue_depth", "LLM queue depth")
+task_p95_gauge  = Gauge("task_p95_duration_seconds", "Task P95 duration")
+
+# Grafana 告警规则：
+#   rate(vl_api_429_total[5m]) > 0  → 钉钉告警："VL API 触发限速 429"
+#   vl_queue_depth > 100            → 钉钉告警："VL 队列深度 > 100，需扩容"
+#   task_p95_duration_seconds > 300 → 钉钉告警："任务 P95 耗时超过 5 分钟"</code></pre>
+
+<div class="callout callout-interview">
+    <div class="callout-title">🎤 面试话术</div>
+    监控覆盖三层——<strong>生产指标</strong>（429/P95/失败率/熔断状态）、
+    <strong>SRE 告警</strong>（队列深度/连接池/内存）、
+    <strong>用户体验</strong>（排队位置/ETA/断点进度）。
+    监控从 Day 1 搭建，不是事后补的。
+</div>
+</section>
+
+<!-- ═══════════════════ SECTION 11 ═════════════════════════ -->
+<section id="scaling">
+<h2><span class="section-num">11</span>扩容路径</h2>
+<pre class="diagram"><code>当前（免费API）          →   Phase 2（付费API上线）    →   Phase 3（规模化）
+────────────────────         ─────────────────────         ─────────────────
+asyncio Semaphore(1)     →   Celery + Redis分布式令牌桶 →   同左 + Redis Cluster
+单进程 FastAPI           →   2x FastAPI + Nginx          →   N x FastAPI + 云LB
+本地 PostgreSQL          →   云 RDS 主从               →   分库分表
+无监控                   →   Flower + Prometheus        →   Grafana + Jaeger 全链路
+手动 bash start.sh       →   Docker Compose             →   Kubernetes HPA 自动扩缩</code></pre>
+
+<div class="callout callout-warn">
+    <div class="callout-title">⚠ 关键约束</div>
+    <strong>VL Worker 永远只开 1 个进程</strong>（除非阿里云给你更高的 VL 配额），
+    这是 60 RPM 物理上限决定的，不是架构限制。
+    扩容时只需：提额申请 → 改 Redis 令牌桶 rate → 加 VL Worker replicas，<strong>无需重构代码</strong>。
+</div>
+</section>
+
+<!-- ═══════════════════ SECTION 12 ═════════════════════════ -->
+<section id="why-not-kafka">
+<h2><span class="section-num">12</span>为什么不选 Kafka</h2>
+
+<table>
+    <tr><th>维度</th><th>Redis + Celery</th><th>Kafka</th></tr>
+    <tr><td>运维复杂度</td><td style="color:var(--success)">低（Redis 已有）</td><td>高（需 Kafka + ZooKeeper/KRaft）</td></tr>
+    <tr><td>学习成本</td><td style="color:var(--success)">低（Python 生态成熟）</td><td>高</td></tr>
+    <tr><td>消息持久化</td><td>有限（AOF/RDB）</td><td>极强（磁盘顺序写，TB 级）</td></tr>
+    <tr><td>消息重放</td><td>❌</td><td>✅（任意时间点回放）</td></tr>
+    <tr><td>多消费者同时消费</td><td>❌</td><td>✅</td></tr>
+    <tr><td>适合本项目</td><td style="color:var(--success)">✅ 任务队列，每条消息只需处理一次</td><td>❌ 无需事件流、无需多下游</td></tr>
+</table>
+
+<div class="callout callout-info">
+    <div class="callout-title">💡 结论</div>
+    PPT 评分是典型"任务队列"场景，不是"事件流"场景。
+    Kafka 的运维成本在这里得不偿失。<strong>选型：Redis + Celery</strong>，Django/FastAPI 生态最成熟的组合。
+    <br><br>
+    引入 Kafka 的时机：需要审计日志 + 实时计费 + 数据分析<strong>同时</strong>消费同一评分事件时。
+</div>
+</section>
+
+<!-- ═══════════════════ SECTION 13 ═════════════════════════ -->
+<section id="summary">
+<h2><span class="section-num">13</span>面试收尾总结</h2>
+
+<div class="callout callout-interview">
+    <div class="callout-title">🎤 一句话总结（直接背）</div>
+    我的 PPT 评分系统是<strong>面向商用 API 限流场景的企业级高并发架构</strong>：
+    以 qwen-vl 1QPS 瓶颈为核心，通过<strong>三段式解耦、串行瓶颈+并行调度、Redis 分布式令牌桶、熔断降级、断点续跑</strong>，
+    在严格 API 约束下最大化吞吐与稳定性；架构<strong>可演进、可观测、高可用</strong>，完全符合真实 SaaS 产品从 0 到 1 的落地路径。
+</div>
+
+<h3>备问：VL 1 并发 = 串行，哪有商用这样？</h3>
+<div class="callout callout-interview">
+    <p>不是架构串行，是 <strong>qwen-vl-plus-0710 商用 API 硬限制 = 60 RPM = 1 QPS</strong>。
+    VL 单请求 2–3 秒，<strong>物理上只能 1 个并发</strong>，开高直接 429。
+    我们架构做了<strong>三段解耦、并行排队、断点续跑、降级容灾</strong>，在瓶颈下最大化吞吐，是<strong>真实生产的典型方案</strong>。</p>
+</div>
+
+<h3>备问：为什么不用更高配额的 VL？</h3>
+<div class="callout callout-interview">
+    <p>更高配额（如 qwen3-vl-plus=1200RPM）<strong>成本高、需商务提额</strong>。
+    我们是<strong>从 0 到 1 的 SaaS</strong>，初期用默认配额验证业务；
+    <strong>架构已预留扩容空间</strong>：提额后只需改 Redis 令牌桶速率 + 扩 VL Worker，<strong>无需重构</strong>。</p>
+</div>
+</section>
+
+<!-- ── Footer ──────────────────────────────────────────────── -->
+<footer style="margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--border); color: var(--text-secondary); font-size: 13px;">
+    <p>本文档描述的是目标架构，当前项目处于 Phase 1（asyncio Semaphore），按需逐步迁移。</p>
+</footer>
+
+</main>
+
+</body>
+</html>

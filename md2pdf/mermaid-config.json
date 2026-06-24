@@ -1,0 +1,6 @@
+{
+  "script": [
+    {"path": "/home/wangjun/PPT_new/md2pdf/mermaid.min.js"},
+    {"path": "/home/wangjun/PPT_new/md2pdf/mermaid-init.js"}
+  ]
+}
